@@ -8,8 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" name="seleniumhq.selenium.java" level="project" />
-    <orderEntry type="library" name="net.sourceforge.tess4j" level="project" />
-    <orderEntry type="library" name="1stleg.jnativehook" level="project" />
     <orderEntry type="library" name="io.github.bonigarcia.webdrivermanager" level="project" />
   </component>
 </module>
