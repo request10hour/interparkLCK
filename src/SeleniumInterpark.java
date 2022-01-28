@@ -18,6 +18,7 @@ public class SeleniumInterpark {
     private static String pw = "";
     private static String bir = "";
     private static Boolean seatTF = false;
+    private static Boolean rightSeat = false;
 
     public static void main(String[] args) {
         JFrame jFrame = new JFrame();
@@ -46,6 +47,18 @@ public class SeleniumInterpark {
         runButton2.setFont(new Font("맑은 고딕", Font.BOLD, 30));
         runButton2.setPreferredSize(new java.awt.Dimension(200, 50));
 
+        JPanel panel = new JPanel();
+        JRadioButton[] radioButton = new JRadioButton[2];
+        ButtonGroup buttonGroup = new ButtonGroup();
+        radioButton[0] = new JRadioButton("좌");
+        buttonGroup.add(radioButton[0]);
+        panel.add(radioButton[0]);
+        radioButton[1] = new JRadioButton("우");
+        buttonGroup.add(radioButton[1]);
+        panel.add(radioButton[1]);
+
+        radioButton[0].setSelected(true);
+
         jFrame.add(idL);
         jFrame.add(idField);
 
@@ -55,6 +68,7 @@ public class SeleniumInterpark {
         jFrame.add(birL);
         jFrame.add(birField);
 
+        jFrame.add(panel);
         jFrame.add(runButton);
 //        jFrame.add(runButton2);
 
@@ -62,9 +76,15 @@ public class SeleniumInterpark {
 
         runButton.addActionListener(e -> {
             try {
+                jFrame.setVisible(false);
+
                 id = idField.getText();
                 pw = pwField.getText();
                 bir = birField.getText();
+
+                rightSeat = !radioButton[0].isSelected();
+
+                System.out.println(rightSeat);
                 loginModule();
                 ticketModule();
             } catch (NoSuchWindowException ex) {
@@ -81,9 +101,12 @@ public class SeleniumInterpark {
     }
 
     private static void ticketModule() throws InterruptedException {
+        JOptionPane.showMessageDialog(null, "서버시간을 확인하고 이 창을 넘기세요");
+        driver.navigate().refresh();
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
         wait.until(ExpectedConditions.elementToBeClickable(driver.findElement(By.xpath("/html/body/div[6]/div[4]/div[4]"))));
+
         Acting.btnClickProcess();
 
         Thread.sleep(300);
@@ -185,11 +208,20 @@ public class SeleniumInterpark {
                 for (WebElement elSeat : elSeats) {
                     //레드팀 블루팀 선택에 중요
                     //부등호 '<'는 왼쪽자리 '>'는 오른쪽자리328.5
-                    if (elSeat.getLocation().getX() > 328.5) {
-                        elSeat.click();
-                        checker = 1;
-                        break;
+                    if (rightSeat) {
+                        if (elSeat.getLocation().getX() > 328.5) {
+                            elSeat.click();
+                            checker = 1;
+                            break;
+                        }
+                    } else {
+                        if (elSeat.getLocation().getX() < 328.5) {
+                            elSeat.click();
+                            checker = 1;
+                            break;
+                        }
                     }
+
                 }
                 if (checker == 0) {
                     throw new RuntimeException();
