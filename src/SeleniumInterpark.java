@@ -43,9 +43,9 @@ public class SeleniumInterpark {
         runButton.setFont(new Font("맑은 고딕", Font.BOLD, 30));
         runButton.setPreferredSize(new java.awt.Dimension(200, 50));
 
-        JButton runButton2 = new JButton("시작");
-        runButton2.setFont(new Font("맑은 고딕", Font.BOLD, 30));
-        runButton2.setPreferredSize(new java.awt.Dimension(200, 50));
+        JButton pwVisibleButton = new JButton("비밀번호 보이기");
+        pwVisibleButton.setFont(new Font("맑은 고딕", Font.BOLD, 10));
+        pwVisibleButton.setPreferredSize(new java.awt.Dimension(200, 20));
 
         JPanel panel = new JPanel();
         JRadioButton[] radioButton = new JRadioButton[2];
@@ -64,16 +64,18 @@ public class SeleniumInterpark {
 
         jFrame.add(pwL);
         jFrame.add(pwField);
+        pwField.setEchoChar('*');
+        jFrame.add(pwVisibleButton);
 
         jFrame.add(birL);
         jFrame.add(birField);
 
         jFrame.add(panel);
         jFrame.add(runButton);
-//        jFrame.add(runButton2);
 
         jFrame.setVisible(true);
 
+        pwVisibleButton.addActionListener(e -> pwField.setEchoChar(pwField.getEchoChar() == '*' ? (char) 0 : '*'));
         runButton.addActionListener(e -> {
             try {
                 jFrame.setVisible(false);
