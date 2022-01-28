@@ -17,11 +17,12 @@ public class SeleniumInterpark {
     private static String id = "";
     private static String pw = "";
     private static String bir = "";
+    private static Boolean seatTF = false;
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         JFrame jFrame = new JFrame();
-        jFrame.setLocation(1000,300);
-        jFrame.setSize(250,400);
+        jFrame.setLocation(1000, 300);
+        jFrame.setSize(250, 400);
         jFrame.setLayout(new FlowLayout());
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -38,12 +39,12 @@ public class SeleniumInterpark {
         birField.setHorizontalAlignment(JTextField.CENTER);
 
         JButton runButton = new JButton("로그인");
-        runButton.setFont( new Font("맑은 고딕", Font.BOLD, 30));
-        runButton.setPreferredSize(new java.awt.Dimension(200,50));
+        runButton.setFont(new Font("맑은 고딕", Font.BOLD, 30));
+        runButton.setPreferredSize(new java.awt.Dimension(200, 50));
 
         JButton runButton2 = new JButton("시작");
-        runButton2.setFont( new Font("맑은 고딕", Font.BOLD, 30));
-        runButton2.setPreferredSize(new java.awt.Dimension(200,50));
+        runButton2.setFont(new Font("맑은 고딕", Font.BOLD, 30));
+        runButton2.setPreferredSize(new java.awt.Dimension(200, 50));
 
         jFrame.add(idL);
         jFrame.add(idField);
@@ -66,7 +67,7 @@ public class SeleniumInterpark {
                 bir = birField.getText();
                 loginModule();
                 ticketModule();
-            } catch (NoSuchWindowException ex){
+            } catch (NoSuchWindowException ex) {
                 System.exit(0);
             } catch (InterruptedException ex) {
                 ex.printStackTrace();
@@ -78,6 +79,7 @@ public class SeleniumInterpark {
         setDriver();
         Acting.loginProcess();
     }
+
     private static void ticketModule() throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
         wait.until(webDriver -> ((JavascriptExecutor) webDriver).executeScript("return document.readyState").equals("complete"));
@@ -91,12 +93,20 @@ public class SeleniumInterpark {
 
         Acting.captchaType();
 
-        Acting.seatSelect();
+        while (true) {
+            if (seatTF) {
+                break;
+            } else {
+                driver.navigate().refresh();
+                seatTF = Acting.seatSelect();
+            }
+        }
         Acting.phase1();
         Acting.phase2();
         Acting.phase3();
         Acting.phase4();
     }
+
     private static void setDriver() {
         //크롬드라이버 경로
         WebDriverManager.chromedriver().setup();
@@ -120,7 +130,7 @@ public class SeleniumInterpark {
             try {
                 List<WebElement> btnColor_y = driver.findElements(By.className("BtnColor_Y"));
                 //맨 끝에 get 활성화된 버튼 배열 인덱스(0~ )
-                WebElement tarBtn = btnColor_y.get(btnColor_y.size()-1);
+                WebElement tarBtn = btnColor_y.get(btnColor_y.size() - 1);
                 tarBtn.sendKeys(Keys.ENTER);
             } catch (IndexOutOfBoundsException e) {
                 System.out.println("btn");
@@ -140,24 +150,24 @@ public class SeleniumInterpark {
             //captcha 입력 타임아웃
             captcha(captchaInput);
         }
-        private static void captcha(WebElement captchaInput){
+
+        private static void captcha(WebElement captchaInput) {
             try {
                 Thread.sleep(100);
                 System.out.println(captchaInput.getAttribute("value").length());
-                if (captchaInput.getAttribute("value").length() == 6){
+                if (captchaInput.getAttribute("value").length() == 6) {
                     driver.findElements(By.className("capchaBtns")).get(0).findElement(By.tagName("a")).click();
-                }
-                else {
+                } else {
                     throw new RuntimeException();
                 }
-            }catch (RuntimeException e){
+            } catch (RuntimeException e) {
                 captcha(captchaInput);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
 
-        private static void seatSelect() throws InterruptedException {
+        private static Boolean seatSelect() throws InterruptedException {
             try {
                 Thread.sleep(100);
                 driver.switchTo().defaultContent();
@@ -188,22 +198,15 @@ public class SeleniumInterpark {
                 driver.switchTo().frame(driver.findElements(By.tagName("iframe")).get(1));
                 driver.findElements(By.className("btnWrap")).get(0).findElement(By.tagName("a")).click();
                 driver.switchTo().defaultContent();
+                return true;
             } catch (IndexOutOfBoundsException e) {
-                driver.navigate().refresh();
-                seatSelect();
-//                driver.switchTo().defaultContent();
-//                driver.switchTo().frame(driver.findElements(By.tagName("iframe")).get(1));
-//                driver.findElements(By.className("btnWrap")).get(0).findElement(By.tagName("p")).click();
-//                seatSelect();
+                return false;
             } catch (UnhandledAlertException e) {
-                driver.navigate().refresh();
-                seatSelect();
+                return false;
             } catch (ElementNotInteractableException e) {
-                driver.navigate().refresh();
-                seatSelect();
+                return false;
             } catch (RuntimeException e) {
-                driver.navigate().refresh();
-                seatSelect();
+                return false;
             }
         }
 
